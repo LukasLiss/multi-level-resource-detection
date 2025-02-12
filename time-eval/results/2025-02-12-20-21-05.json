@@ -1,0 +1,1 @@
+{0.0: [(['Container'], {'Bring to Loading Bay', 'Load to Vehicle', 'Drive to Terminal', 'Place in Stock', 'Weigh', 'Pick Up Empty Container', 'Load Truck'})], 1.0: [(['Truck'], set()), (['Transport Document', 'Vehicle'], {'Create Transport Document', 'Book Vehicle', 'Depart', 'Order Empty Containers'})], 2.0: [(['Forklift'], set())]}

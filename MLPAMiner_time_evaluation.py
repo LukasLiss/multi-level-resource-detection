@@ -157,7 +157,7 @@ def connected_components_undirected(used_nodes, edges):
     return connected_components
 
 def mlpaDiscovery(ocel, tau=0.9):
-    time_start_overall = datetime.datetime.now()
+    time_start_overall = datetime.now()
     #########################################################################
     #                           Start of totem Part                         #
     #########################################################################
@@ -383,7 +383,7 @@ def mlpaDiscovery(ocel, tau=0.9):
     #                           End of totem Part                           #
     #########################################################################
 
-    time_totem_done = datetime.datetime.now()
+    time_totem_done = datetime.now()
 
     # transform tempGraph to ILP
     model = LpProblem(name="layer-assignment")
@@ -421,12 +421,12 @@ def mlpaDiscovery(ocel, tau=0.9):
             z_initiating[to_string((t1, t2))] for (t1, t2) in tempGraph[TR_INITIATING]])
     model += obj_func
 
-    time_ilp_done = datetime.datetime.now()
+    time_ilp_done = datetime.now()
 
     # solve the model
     status = model.solve()
 
-    time_ilp_solve_done = datetime.datetime.now()
+    time_ilp_solve_done = datetime.now()
 
     #print
     #for var in level.values():
@@ -472,7 +472,7 @@ def mlpaDiscovery(ocel, tau=0.9):
 
         resulting_process_view_with_events[l] = ccs_with_event_types
 
-    time_mlpa_done = datetime.datetime.now()
+    time_mlpa_done = datetime.now()
 
     #print("Resulting Process Views with matching Eventtypes:")
     print(resulting_process_view_with_events)
@@ -501,13 +501,13 @@ for file in os.listdir(logs_folder):
 
     print(f"started file: {file}")
 
-    ocel = ocel_import_factory.apply(os.path.join(logs_folder, file))
+    ocel = ocel_import_factory.apply(os.path.join(logs_folder, file), parameters={})
 
     number_px = len(ocel.process_executions)
 
     print(f"import done for file: {file}")
 
-    (result, time_result) = mlpaDiscovery()
+    (result, time_result) = mlpaDiscovery(ocel=ocel, tau=0.9)
 
     number_objects = 0
     number_events = 0
@@ -518,11 +518,11 @@ for file in os.listdir(logs_folder):
     for px_obj in ocel.process_execution_objects:
         number_objects += len(px_obj)
 
-    # todo save pa
-    save_result_filename = f"{datetime.datetime.now().strftime('%Y-%m-%d-%H-%M-%S')}.json"
+    # save result to txt
+    save_result_filename = f"{datetime.now().strftime('%Y-%m-%d-%H-%M-%S')}.json"
+    with open(os.path.join(results_folder, save_result_filename), 'w') as result_file:
+        result_file.write(f"{result}")
 
-    with open(os.path.join(results_folder, save_result_filename), 'w') as json_file:
-        json.dump(result, json_file, indent=4)
-
+    # save time evaluation
     with open(results_folder + results_filename, 'a') as resultfile:
         resultfile.write(f"{file};{save_result_filename};{number_objects};{number_events};{number_px};{time_result['O2O']};{time_result['time_overall']},{time_result['time_totem']};{time_result['time_ilp']};{time_result['time_ilpsolve']};{time_result['time_cc']}" + '\n')
