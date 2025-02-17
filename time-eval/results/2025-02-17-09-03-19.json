@@ -1,0 +1,1 @@
+{0.0: [(['INVOICE'], {'Receive Invoice', 'Clear Invoice'})], 1.0: [(['GDSRCPT'], {'Issue Goods Receipt', 'Receive Goods'})], 2.0: [(['PURCHREQ', 'PURCHORD'], {'Create Purchase Order', 'Create Purchase Requisition'})], 3.0: [(['MATERIAL'], {'Verify Material', 'Goods Issue', 'Plan Goods Issue'})]}

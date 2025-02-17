@@ -1,5 +1,8 @@
 from datetime import datetime
-from ocpa.objects.log.importer.ocel2.sqlite import factory as ocel_import_factory
+from ocpa.objects.log.importer.ocel2.sqlite import factory as ocel2_sqlite_import_factory
+from ocpa.objects.log.importer.ocel2.xml import factory as ocel2_xml_import_factory
+from ocpa.objects.log.importer.ocel import factory as ocel1_import_factory
+
 #from ocpa.objects.log.importer.ocel2.xml import factory as ocel_import_factory
 from ocpa.objects.log.util import misc as log_util
 from ocpa.algo.discovery.ocpn import algorithm as ocpn_discovery_factory
@@ -194,7 +197,34 @@ def mlpaDiscovery(ocel, tau=0.9):
     for px in ocel.process_executions:
         for ev in px:
             # event infos: objects and timestamps
-            ev_timestamp = datetime.strptime(str(ocel.get_value(ev, 'event_timestamp')), DATEFORMAT)
+            ev_timestamp = None
+            try:
+                ev_timestamp = datetime.strptime(str(ocel.get_value(ev, 'event_timestamp')), DATEFORMAT)
+            except:
+                ev_timestamp = None
+
+            if ev_timestamp == None:
+                try:
+                    ev_timestamp = datetime.strptime(str(ocel.get_value(ev, 'event_timestamp')), "%Y-%m-%d %H:%M:%S%z")
+                except:
+                    ev_timestamp = None
+
+            if ev_timestamp == None:
+                try:
+                    ev_timestamp = datetime.strptime(str(ocel.get_value(ev, 'event_timestamp')), "%Y-%m-%dT%H:%M:%S.%f")
+                except:
+                    ev_timestamp = None
+
+            if ev_timestamp == None:
+                try:
+                    ev_timestamp = datetime.strptime(str(ocel.get_value(ev, 'event_timestamp')), "%Y-%m-%d %H:%M:%S.%f")
+                except:
+                    ev_timestamp = None
+
+            if ev_timestamp == None:
+                print("Problem: No dateformat matches")
+                raise Exception("Exception: No dateformat matches")
+                continue
 
             objects_of_event = get_all_event_objects(ocel, ev)
             for obj in objects_of_event:
@@ -272,23 +302,26 @@ def mlpaDiscovery(ocel, tau=0.9):
                         h_event_cardinalities[(type_source, type_target)][EC_ZERO_MANY] += 1
 
     # merge o2o and e2o connected objects
-    for (source_o, target_o) in ocel.o2o_graph.graph.edges:
-        # print(f"{source_o} - {target_o}")
-        type_of_target_o = None
-        for type in ocel.object_types:
-            if target_o in type_to_object[type]:
-                type_of_target_o = type
-                break
-        if type_of_target_o == None:
-            continue
-        o2o.setdefault(source_o, dict())
-        o2o[source_o].setdefault(type_of_target_o, set())
-        o2o[source_o][type_of_target_o].update([source_o])
+    if ocel.o2o_graph: # ocel 1 has no O2O
+        for (source_o, target_o) in ocel.o2o_graph.graph.edges:
+            # print(f"{source_o} - {target_o}")
+            type_of_target_o = None
+            for type in ocel.object_types:
+                if target_o in type_to_object[type]:
+                    type_of_target_o = type
+                    break
+            if type_of_target_o == None:
+                continue
+            o2o.setdefault(source_o, dict())
+            o2o[source_o].setdefault(type_of_target_o, set())
+            o2o[source_o][type_of_target_o].update([source_o])
 
     # compute log cardinality
     for type_source in ocel.object_types:
         for type_target in ocel.object_types:
             h_temporal_relations.setdefault((type_source, type_target), dict())
+            if type_source not in type_to_object.keys():
+                continue
             for obj in type_to_object[type_source]:
                 h_log_cardinalities.setdefault((type_source, type_target), dict())
                 h_log_cardinalities[(type_source, type_target)].setdefault(LC_TOTAL, 0)
@@ -486,6 +519,24 @@ def mlpaDiscovery(ocel, tau=0.9):
         'O2O': len(type_relations)
     })
 
+def loadOCEventLog(filePath, fileName, fileExtension, ocelVersion):
+    if ocelVersion == 1:
+        if fileExtension == '.jsonocel':
+            ocel = ocel1_import_factory.apply(filePath + fileName + fileExtension, parameters={})
+        else:
+            raise ValueError('Unknown file extension for this OCEL version.')
+    elif ocelVersion == 2:
+        if fileExtension == '.xml':
+            ocel = ocel2_xml_import_factory.apply(filePath + fileName + fileExtension, parameters={})
+        elif fileExtension == '.sqlite':
+            ocel = ocel2_sqlite_import_factory.apply(filePath + fileName + fileExtension, parameters={})
+        else:
+            raise ValueError('Unknown file extension for this OCEL version.')
+    else:
+        raise ValueError('Unknown OCEL version. Use 1 for OCEL 1.0 or 2 for OCEL 2.0.')
+
+    return ocel
+
 #time eval
 # folder with event logs
 logs_folder = "./time-eval/logs/"
@@ -493,36 +544,56 @@ results_folder = "./time-eval/results/"
 results_filename = "time-logging.csv"
 DATEFORMAT = "%Y-%m-%d %H:%M:%S"
 
-n = 1 # n repetitions
+n = 10 # n repetitions
 
-for file in os.listdir(logs_folder):
-    if not os.path.isfile(os.path.join(logs_folder, file)):
-        continue
+eval_logs = [
+    {'filePath': "./time-eval/logs/ocel1/", 'fileName': 'p2p', 'extension': ".jsonocel", 'ocelVersion': 1},
+{'filePath': "./time-eval/logs/ocel1/", 'fileName': 'p2p-normal', 'extension': ".jsonocel", 'ocelVersion': 1},
+    {'filePath': "./time-eval/logs/ocel1/", 'fileName': 'github_pm4py', 'extension': ".jsonocel", 'ocelVersion': 1},
+    {'filePath': "./time-eval/logs/", 'fileName': 'ContainerLogistics', 'extension': ".sqlite", 'ocelVersion': 2},
+    {'filePath': "./time-eval/logs/ocel1/", 'fileName': 'o2c', 'extension': ".jsonocel", 'ocelVersion': 1},
+    {'filePath': "./time-eval/logs/ocel1/", 'fileName': 'recruiting', 'extension': ".jsonocel", 'ocelVersion': 1},
+    {'filePath': "./time-eval/logs/ocel1/", 'fileName': 'transfer_order', 'extension': ".jsonocel", 'ocelVersion': 1},
+    {'filePath': "./time-eval/logs/ocel1/", 'fileName': 'windows_events', 'extension': ".jsonocel", 'ocelVersion': 1},
+    {'filePath': "./time-eval/logs/", 'fileName': 'ocel2-p2p', 'extension': ".sqlite", 'ocelVersion': 2},
+    {'filePath': "./time-eval/logs/", 'fileName': 'order-management', 'extension': ".sqlite", 'ocelVersion': 2}
+]
 
-    print(f"started file: {file}")
+eval_logs = [
+    {'filePath': "./time-eval/logs/", 'fileName': 'angular_github_commits_ocel', 'extension': ".xml", 'ocelVersion': 2}
+]
 
-    ocel = ocel_import_factory.apply(os.path.join(logs_folder, file), parameters={})
+for file in eval_logs:
+    # if not os.path.isfile(os.path.join(file['filePath'], file)):
+        # continue
+    print(f"started file: {file['fileName']}")
+    #try:
+    ocel = loadOCEventLog(file['filePath'], file['fileName'], file['extension'], file['ocelVersion'])
 
-    number_px = len(ocel.process_executions)
+    for i in range(n):
+        number_px = len(ocel.process_executions)
 
-    print(f"import done for file: {file}")
+        print(f"import done for file: {file}")
 
-    (result, time_result) = mlpaDiscovery(ocel=ocel, tau=0.9)
+        (result, time_result) = mlpaDiscovery(ocel=ocel, tau=0.9)
 
-    number_objects = 0
-    number_events = 0
+        number_objects = 0
+        number_events = 0
 
-    for px in ocel.process_executions:
-        number_events += len(px)
+        for px in ocel.process_executions:
+            number_events += len(px)
 
-    for px_obj in ocel.process_execution_objects:
-        number_objects += len(px_obj)
+        for px_obj in ocel.process_execution_objects:
+            number_objects += len(px_obj)
 
-    # save result to txt
-    save_result_filename = f"{datetime.now().strftime('%Y-%m-%d-%H-%M-%S')}.json"
-    with open(os.path.join(results_folder, save_result_filename), 'w') as result_file:
-        result_file.write(f"{result}")
+        # save result to txt
+        save_result_filename = f"{datetime.now().strftime('%Y-%m-%d-%H-%M-%S')}.json"
+        with open(os.path.join(results_folder, save_result_filename), 'w') as result_file:
+            result_file.write(f"{result}")
 
-    # save time evaluation
-    with open(results_folder + results_filename, 'a') as resultfile:
-        resultfile.write(f"{file};{save_result_filename};{number_objects};{number_events};{number_px};{time_result['O2O']};{time_result['time_overall']},{time_result['time_totem']};{time_result['time_ilp']};{time_result['time_ilpsolve']};{time_result['time_cc']}" + '\n')
+        # save time evaluation
+        with open(results_folder + results_filename, 'a') as resultfile:
+            resultfile.write(f"{file};{save_result_filename};{number_objects};{number_events};{number_px};{time_result['O2O']};{time_result['time_overall']},{time_result['time_totem']};{time_result['time_ilp']};{time_result['time_ilpsolve']};{time_result['time_cc']}" + '\n')
+
+    #except:
+        #print("Exception occurred")

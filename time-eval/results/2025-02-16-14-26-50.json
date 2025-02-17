@@ -1,0 +1,1 @@
+{0.0: [(['case:concept:name', 'org:resource'], {'cross-referenced', 'assigned', 'added_to_project', 'labeled', 'renamed', 'base_ref_changed', 'reopened', 'unassigned', 'merged', 'head_ref_restored', 'head_ref_deleted', 'created', 'commented', 'moved_columns_in_project', 'mentioned', 'subscribed', 'closed', 'unlabeled', 'referenced', 'milestoned'})], 1.0: [(['case:repo'], set())]}

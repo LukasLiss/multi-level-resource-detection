@@ -1,0 +1,1 @@
+{0.0: [(['packages'], {'send package', 'package delivered', 'create package', 'failed delivery'}), (['orders'], {'pay order', 'payment reminder', 'confirm order', 'place order'})], 1.0: [(['items'], {'item out of stock', 'reorder item', 'pick item'})], 2.0: [(['employees', 'products', 'customers'], set())]}
