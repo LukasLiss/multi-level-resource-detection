@@ -11,7 +11,7 @@ clone this repository and install the required dependecies using `pipenv install
 
 ## Usage
 
-The process area mining algorithm is available as the `mlpaDiscovery()` function in the ;LPAMiner.py file.
+The process area mining algorithm is available as the `mlpaDiscovery()` function in the MLPAMiner.py file.
 It requires an object centric event log loaded with the ocpa library as input.
 Additionally one can specify the tau parameter of the totem miner that defines for which percentace of object pairs a realtion has to hold in order to end up in the mined totem model.
 For eample `mlpaDiscovery(logistic_ocel, tau=0.9)` with the publicly accessible logstic event log results in the following process areas:
