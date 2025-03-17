@@ -548,7 +548,7 @@ n = 10 # n repetitions
 
 eval_logs = [
     {'filePath': "./time-eval/logs/ocel1/", 'fileName': 'p2p', 'extension': ".jsonocel", 'ocelVersion': 1},
-{'filePath': "./time-eval/logs/ocel1/", 'fileName': 'p2p-normal', 'extension': ".jsonocel", 'ocelVersion': 1},
+    {'filePath': "./time-eval/logs/ocel1/", 'fileName': 'p2p-normal', 'extension': ".jsonocel", 'ocelVersion': 1},
     {'filePath': "./time-eval/logs/ocel1/", 'fileName': 'github_pm4py', 'extension': ".jsonocel", 'ocelVersion': 1},
     {'filePath': "./time-eval/logs/", 'fileName': 'ContainerLogistics', 'extension': ".sqlite", 'ocelVersion': 2},
     {'filePath': "./time-eval/logs/ocel1/", 'fileName': 'o2c', 'extension': ".jsonocel", 'ocelVersion': 1},

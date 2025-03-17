@@ -109,7 +109,6 @@
 {'filePath': './time-eval/logs/ocel1/', 'fileName': 'windows_events', 'extension': '.jsonocel', 'ocelVersion': 1};2025-02-17-08-54-46.json;404;98128;1;15;15.322919,15.299849;0.001014;0.022056;0.0
 {'filePath': './time-eval/logs/ocel1/', 'fileName': 'windows_events', 'extension': '.jsonocel', 'ocelVersion': 1};2025-02-17-08-55-01.json;404;98128;1;15;15.430639,15.407041;0.0;0.023598;0.0
 {'filePath': './time-eval/logs/ocel1/', 'fileName': 'windows_events', 'extension': '.jsonocel', 'ocelVersion': 1};2025-02-17-08-55-16.json;404;98128;1;15;15.261008,15.237791;0.0;0.023217;0.0
---2 missing test--
 {'filePath': './time-eval/logs/ocel1/', 'fileName': 'p2p-normal', 'extension': '.jsonocel', 'ocelVersion': 1};2025-02-17-09-03-19.json;781;720;80;7;0.152102,0.115173;0.001003;0.035926;0.0
 {'filePath': './time-eval/logs/ocel1/', 'fileName': 'p2p-normal', 'extension': '.jsonocel', 'ocelVersion': 1};2025-02-17-09-03-19.json;781;720;80;7;0.132041,0.110133;0.001017;0.020891;0.0
 {'filePath': './time-eval/logs/ocel1/', 'fileName': 'p2p-normal', 'extension': '.jsonocel', 'ocelVersion': 1};2025-02-17-09-03-19.json;781;720;80;7;0.13319,0.111321;0.0;0.021869;0.0

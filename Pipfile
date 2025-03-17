@@ -10,6 +10,7 @@ aiofiles = "*"
 scipy = "*"
 pm4py = "==2.2.32"
 pulp = "*"
+seaborn = "*"
 
 [dev-packages]
 jupyter = "*"
